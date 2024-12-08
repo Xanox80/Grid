@@ -1,0 +1,82 @@
+class Grid {
+    private grid: string[][];
+    private rows: number;
+    private cols: number;
+
+    constructor(grid: string[][]) {
+        this.grid = grid;
+        this.rows = grid.length;
+        this.cols = grid[0].length;
+    }
+
+   
+    isValid(row: number, col: number): boolean {
+        return row >= 0 && col >= 0 && row < this.rows && col < this.cols && this.grid[row][col] === '.';
+    }
+}
+
+class PathFinder {
+    private grid: Grid;
+    private start: [number, number];
+    private end: [number, number];
+    private directions: [number, number][] = [
+        [0, 1], [1, 0], [0, -1], [-1, 0],  
+        [1, 1], [1, -1], [-1, 1], [-1, -1] 
+    ];
+
+    constructor(grid: Grid, start: [number, number], end: [number, number]) {
+        this.grid = grid;
+        this.start = start;
+        this.end = end;
+    }
+
+  
+    findShortestPath(): [number, number][] | null {
+        const queue: [[number, number], [number, number][]][] = [[[this.start[0], this.start[1]], [this.start]]];
+        const visited = new Set<string>();
+
+        while (queue.length > 0) {
+            const [[row, col], path] = queue.shift()!;
+            const positionKey = `${row},${col}`;
+
+            if (visited.has(positionKey)) continue;
+            visited.add(positionKey);
+
+          
+            if (row === this.end[0] && col === this.end[1]) {
+                return path;
+            }
+
+            for (const [dRow, dCol] of this.directions) {
+                const newRow = row + dRow;
+                const newCol = col + dCol;
+
+                if (this.grid.isValid(newRow, newCol) && !visited.has(`${newRow},${newCol}`)) {
+                    queue.push([[newRow, newCol], [...path, [newRow, newCol]]]);
+                }
+            }
+        }
+
+        return null; 
+    }
+}
+
+
+const gridData = [
+    ['.', 'x', '.'],
+    ['.', 'x', '.'],
+    ['.', '.', '.']
+];
+
+const grid = new Grid(gridData);
+const start: [number, number] = [2, 1];
+const end: [number, number] = [0, 2];
+
+const pathFinder = new PathFinder(grid, start, end);
+const shortestPath = pathFinder.findShortestPath();
+
+if (shortestPath) {
+    console.log('Найкоротший шлях:', shortestPath);
+} else {
+    console.log('Шляху не існує');
+}
